@@ -4,7 +4,7 @@
 **Touchswarm** is an innovative physical human-drone interaction system designed around the Crazyflie 2.1 and the Crazyswarm platform. It enables users to render force and create diverse haptic feedback, seamlessly integrating with 3D systems. This makes it a versatile tool for researchers, hobbyists, and anyone interested in drone interaction technologies.
 
 
-![Touchswarm System](interaction2.gif)  <!-- Example image of the Touchswarm system -->
+![Touchswarm System](/interaction2.gif)  <!-- Example image of the Touchswarm system -->
 
 ## Features
 - **Haptic Feedback:** Generate tactile sensations to simulate the sense of touch in human-drone interactions.
