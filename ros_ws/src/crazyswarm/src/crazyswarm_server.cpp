@@ -1387,6 +1387,7 @@ public:
     std::vector<libobjecttracker::DynamicsConfiguration> dynamicsConfigurations;
     std::vector<libobjecttracker::MarkerConfiguration> markerConfigurations;
     std::set<int> channels;
+    //std::ofstream file("~/logs/latency_log.txt", std::ios::app); // Open in append mode
 
     readMarkerConfigurations(markerConfigurations);
     readDynamicsConfigurations(dynamicsConfigurations);
@@ -1682,6 +1683,8 @@ public:
               std::cout << latencyTotal[i] / latencyCount * 1000.0 << ",";
             }
             std::cout << std::endl;
+
+            
           // // }
         }
 
