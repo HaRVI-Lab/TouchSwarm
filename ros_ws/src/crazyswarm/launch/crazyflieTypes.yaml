@@ -3,7 +3,7 @@ crazyflieTypes:
     bigQuad: False
     batteryVoltageWarning: 3.8 # V
     batteryVoltateCritical: 3.7 # V
-    markerConfiguration: 1 # change to 3 for single marker tracking
+    markerConfiguration: 6 # change to 3 for single marker tracking
     dynamicsConfiguration: 0
     firmwareParams:
       ctrlMel:
@@ -27,7 +27,7 @@ crazyflieTypes:
       posCtlPid:
         xKi: 0.0
         yKi: 0.0
-        zKi: 0.0
+        # zKi: 0.0
       pid_attitude:
         roll_ki: 0.0
         pitch_ki: 0.0
@@ -37,24 +37,54 @@ crazyflieTypes:
       velCtlPid:
         vxKi: 0.0
         vyKi: 0.0
-        vzKi: 0.0
-
-      # Default PID Attitude Values
-      # pid_attitude:
-      #   roll_kp: 5.0
-      #   roll_ki: 0.0
-      #   roll_kd: 2.0
-      #   pitch_kp: 5.0
-      #   pitch_ki: 0.10
-      #   pitch_kd: 2.0
-
-  # leftMarker:
-  #   bigQuad: False
-  #   batteryVoltageWarning: 3.8 # V
-  #   batteryVoltateCritical: 3.7 # V
-  #   markerConfiguration: 6 # change to 3 for single marker tracking
-  #   dynamicsConfiguration: 0
-  #   firmwareParams:
+      powerDist:
+        idleThrust: 0
+      # vzKi: 0.0
+  VertCageBot:
+    bigQuad: False
+    batteryVoltageWarning: 3.8 # V
+    batteryVoltateCritical: 3.7 # V
+    markerConfiguration: 2 # change to 3 for single marker tracking
+    dynamicsConfiguration: 0
+    firmwareParams:
+      posCtlPid:
+        xKi: 0.0
+        yKi: 0.0
+        # zKi: 0.0
+      pid_attitude:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      pid_rate:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      velCtlPid:
+        vxKi: 0.0
+        vyKi: 0.0
+      powerDist:
+        idleThrust: 0
+      # vzKi: 0.0
+  VertCageTop:
+    bigQuad: False
+    batteryVoltageWarning: 3.8 # V
+    batteryVoltateCritical: 3.7 # V
+    markerConfiguration: 3 # change to 3 for single marker tracking
+    dynamicsConfiguration: 0
+    firmwareParams:
+      posCtlPid:
+        xKi: 0.0
+        yKi: 0.0
+        # zKi: 0.0
+      pid_attitude:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      pid_rate:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      velCtlPid:
+        vxKi: 0.0
+        vyKi: 0.0
+      powerDist:
+        idleThrust: 0
 
   rightMarker:
     bigQuad: False
@@ -66,7 +96,7 @@ crazyflieTypes:
       posCtlPid:
         xKi: 0.0
         yKi: 0.0
-        zKi: 0.0
+        # zKi: 0.0
       pid_attitude:
         roll_ki: 0.0
         pitch_ki: 0.0
@@ -76,8 +106,46 @@ crazyflieTypes:
       velCtlPid:
         vxKi: 0.0
         vyKi: 0.0
-        vzKi: 0.0
-
+  FRMarker:
+    bigQuad: False
+    batteryVoltageWarning: 3.8 # V
+    batteryVoltateCritical: 3.7 # V
+    markerConfiguration: 4 # change to 3 for single marker tracking
+    dynamicsConfiguration: 0
+    firmwareParams:
+      posCtlPid:
+        xKi: 0.0
+        yKi: 0.0
+        # zKi: 0.0
+      pid_attitude:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      pid_rate:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      velCtlPid:
+        vxKi: 0.0
+        vyKi: 0.0
+  FLMarker:
+    bigQuad: False
+    batteryVoltageWarning: 3.8 # V
+    batteryVoltateCritical: 3.7 # V
+    markerConfiguration: 5 # change to 3 for single marker tracking
+    dynamicsConfiguration: 0
+    firmwareParams:
+      posCtlPid:
+        xKi: 0.0
+        yKi: 0.0
+        # zKi: 0.0
+      pid_attitude:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      pid_rate:
+        roll_ki: 0.0
+        pitch_ki: 0.0
+      velCtlPid:
+        vxKi: 0.0
+        vyKi: 0.0
   CF21SingleMarker:
     bigQuad: False
     batteryVoltageWarning: 3.8 # V
@@ -109,7 +177,7 @@ crazyflieTypes:
         mass: 0.032
         massThrust: 132000
 
-numMarkerConfigurations: 10
+numMarkerConfigurations: 9
 markerConfigurations:
   "0": # for standard Crazyflie
     numPoints: 4
@@ -125,59 +193,62 @@ markerConfigurations:
     points:
       "0": [-0.0504837, 0.0150054, 0.0363401]
       "1": [0.00309327, -0.0392855, 0.0393555]
-      "2": [-0.0504698, 0.0748615, 0.0382872]
+      "2": [-0.0189241, 0.0671312, 0.0810122]
       "3": [-0.0540941, -0.0387714, 0.0372181]
 
-  "2": # big frame
+  "2": # Vertical Stacked Cage Bot
     numPoints: 4
-    offset: [0.0, 0.0, -0.06]
+    offset: [0.0, 0.0, -0.0]
     points:
-      "0": [0.0558163, -0.00196302, 0.0945539]
-      "1": [-0.0113941, 0.00945842, 0.0984811]
-      "2": [-0.0306277, 0.0514879, 0.0520456]
-      "3": [0.0535816, -0.0400775, 0.0432799]
-  "3": # new lightweight cage
-    numPoints: 4
-    offset: [0.0, 0.0, -0.02]
-    points:
-      "0": [0.0638817, 0.0114961, 0.0423504]
-      "1": [-0.0549325, 0.0690123, 0.0439131]
-      "2": [0.0634328, 0.0678059, 0.0441438]
-      "3": [0.00515003, -0.0463719, 0.0393996]
-  "4": # front facing touch marker
-    numPoints: 4
-    offset: [0.0, 0.0, -0.06]
-    points:
-      "0": [-0.00320672, 0.0711399, 0.0739474]
-      "1": [0.0546534, 0.0643949, 0.0739337]
-      "2": [0.0385261, -0.0461827, 0.0722514]
-      "3": [0.0654391, -0.0196962, 0.0727022]
-  "5": # front facing touch marker
-    numPoints: 4
-    offset: [0.0, 0.0, -0.02]
-    points:
-      "0": [0.0779831, 0.076849, 0.0526226]
-      "1": [-0.0390897, 0.0779268, 0.0514557]
-      "2": [0.0190234, 0.0792278, 0.0505197]
-      "3": [0.079656, 0.011165, 0.0479861]
+      "0": [-0.0773725, 0.0120474, 0.0810437]
+      "1": [0.0347127, 0.080243, 0.0838635]
+      "2": [0.0324577, -0.0381201, 0.0813196]
+      "3": [-0.0754106, -0.0473467, 0.0210512]
 
-  "6": # lightweight cage left facing
+  "3": # Vertical Stacked Cage Top
     numPoints: 4
-    offset: [0.0, 0.0, -0.05]
+    offset: [0.0, 0.0, -0.0]
     points:
-      "0": [0.0620779, 0.0558468, 0.125515]
-      "1": [0.0820516, 0.0265445, 0.125525]
-      "2": [0.0480958, 0.0247824, 0.126187]
-      "3": [0.0632508, 0.000276077, 0.126366]
+      "0": [-0.0811888, 0.0683458, 0.0824414]
+      "1": [0.0456569, -0.0384412, 0.0201943]
+      "2": [0.0424153, 0.00430389, 0.0806721]
+      "3": [-0.0810689, 0.0377423, 0.0579984]
 
-  "7": # right 24/2/1
+  "4": # front left
     numPoints: 4
-    offset: [0.0, 0.0, -0.04]
+    offset: [0.0, 0.0, -0.00]
     points:
-      "0": [-0.0410349, -0.0502113, 0.0402004]
-      "1": [0.0170354, -0.0509094, 0.0418944]
-      "2": [-0.0423259, 0.00790672, 0.0407434]
-      "3": [0.0740889, -0.0487123, 0.0462185]
+      "0": [0.0901581, 0.0606079, 0.045505]
+      "1": [0.100482, 0.0294713, 0.0450343]
+      "2": [0.134587, 0.0593807, 0.0445094]
+      "3": [0.174465, 0.0490476, 0.0440582]
+  "5": # front right
+    numPoints: 4
+    offset: [0.0, 0.0, -0.0]
+    points:
+      "0": [0.0907217, -0.178258, 0.0469226]
+      "1": [0.147468, -0.161578, 0.0465216]
+      "2": [0.184149, -0.156024, 0.0456356]
+      "3": [0.181915, -0.176153, 0.0478372]
+
+  "6": # left 24/2/26
+    numPoints: 4
+    offset: [0.0, -0.0, -0.0]
+    points:
+      "0": [-0.0504123, 0.0108955, 0.044244]
+      "1": [-0.0497269, -0.028713, 0.0443759]
+      "2": [-0.0516264, 0.0631139, 0.0437943]
+      "3": [0.0126046, 0.0651835, 0.0415745]
+
+  "7": # right 24/2/26
+    numPoints: 4
+    offset: [0.0, 0.0, -0.00]
+    points:
+      "0": [-0.0451718, 0.00535157, 0.0459401]
+      "1": [0.0142687, -0.0540377, 0.0479159]
+      "2": [-0.0441418, -0.0520133, 0.0480874]
+      "3": [-0.0453006, 0.0378797, 0.0457233]
+
   "8": # standard without cage
     numPoints: 4
     offset: [0.0, 0.0, -0.02]
@@ -186,14 +257,6 @@ markerConfigurations:
       "1": [-0.00232167, 0.0194679, 0.0243211]
       "2": [0.0329582, 0.0143487, 0.0224059]
       "3": [0.0076539, -0.0128706, 0.0250476]
-  "9": # assemble light weight
-    numPoints: 4
-    offset: [0.0, 0.0, -0.02]
-    points:
-      "0": [0.0638817, 0.0114961, 0.0423504]
-      "1": [-0.0549325, 0.0690123, 0.0439131]
-      "2": [0.0634328, 0.0678059, 0.0441438]
-      "3": [0.00515003, -0.0463719, 0.0393996]
 
 numDynamicsConfigurations: 1
 dynamicsConfigurations:

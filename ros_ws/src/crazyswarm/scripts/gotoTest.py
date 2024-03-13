@@ -33,21 +33,21 @@ def main():
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
     cf = swarm.allcfs.crazyflies[0]
-    
+    cfs = swarm.allcfs
     # Subscribe to the /cf1/log1 topic
     rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
 
     
-    cf.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
+    cfs.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
     timeHelper.sleep(TAKEOFF_DURATION)
     print("take off")
-    pos = np.array([0,-0.5, z])
-    cf.goTo(pos, 0,5.0)
+    pos = np.array([0,-0.5, 0])
+    cfs.goTo(pos, 0,5.0)
     print("goto 0 05 075")
     
     timeHelper.sleep(7.0)
-    pos = np.array([0,0, z])
-    cf.goTo(pos, 0,3.0)
+    pos = np.array([0,0, 0])
+    cfs.goTo(pos, 0,3.0)
     print("goto 0 0 075")
     
     timeHelper.sleep(5.0)
@@ -57,7 +57,7 @@ def main():
 
     #timeHelper.sleep(totalTime)
     #print("go to 000")  
-    cf.land(targetHeight=0.04, duration=3.5)
+    cfs.land(targetHeight=0.04, duration=3.5)
     timeHelper.sleep(TAKEOFF_DURATION)
     print("land")  
 

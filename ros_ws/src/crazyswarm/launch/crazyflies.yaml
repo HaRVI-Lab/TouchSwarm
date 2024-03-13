@@ -1,15 +1,8 @@
 crazyflies:
 - channel: 100
-  id: 2
-  initialPosition:
-  - 0.0
-  - -1.2
-  - 0.1
-  type: rightMarker
-- channel: 100
   id: 1
   initialPosition:
-  - -0.05
-  - -0.12
-  - 0.1
+  - -0.03
+  - 0.0
+  - 0.04
   type: default

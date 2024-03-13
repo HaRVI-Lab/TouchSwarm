@@ -1,9 +1,17 @@
 crazyflies:
-  - id: 2
-    channel: 100
-    initialPosition: [0.0, -1.2, 0.10]
-    type: rightMarker
   - id: 1
     channel: 100
-    initialPosition: [-0.05, -0.120, 0.10]
+    initialPosition: [-0.030, 0.0, 0.04]
     type: default
+  # - id: 2
+  #   channel: 100
+  #   initialPosition: [-0.030, -0.15, 0.04]
+  #   type: rightMarker
+  # - id: 3
+  #   channel: 100
+  #   initialPosition: [0.125, 0.05, 0.04]
+  #   type: FLMarker
+  # - id: 4
+  #   channel: 100
+  #   initialPosition: [0.15, -0.15, 0.04]
+  #   type: FRMarker

@@ -1,0 +1,78 @@
+import rospy
+import socket
+import time
+import tf
+from geometry_msgs.msg import TransformStamped
+import numpy as np
+import tf2_ros
+import tf2_geometry_msgs
+
+# Constants for UDP Sender
+DEST_IP = "127.0.0.1"
+DEST_PORT = 8008
+DRONE_DISTANCE = 0.15  # 15 cm
+
+# Create a UDP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+def calculate_target_position(position, orientation):
+    """
+    Calculate the target position of the drone based on hand's position and orientation.
+    The drone should be 15 cm away from the hand in the direction the hand is pointing.
+    """
+    # Convert Quaternion to Euler angles
+    
+    hand_Ori = tf.transformations.euler_from_quaternion([
+        orientation.x,
+        orientation.y,
+        orientation.z,
+        orientation.w
+    ])
+    print("hand: ",hand_Ori)
+    if abs(hand_Ori[1]) < 0.70:
+        print("Not clicking")
+        #hand_Pos = np.array([msg.transform.translation.x, msg.transform.translation.y, msg.transform.translation.z])
+    
+    # Calculate forward direction (assuming pointing direction is along x-axis)
+    # forward_dir = np.array([
+    #     np.cos(euler[1]) * np.cos(euler[0]),
+    #     np.sin(euler[1]) * np.cos(euler[0]),
+    #     np.sin(euler[0])
+    # ])
+
+    #now determine where the drone needs to move based on hands gesture
+    #print("Ori: ",forward_dir,euler)
+    #if(forward_dir[1] )
+    
+    # Calculate the target position
+    #target_pos = position +  [0,0,-0.1]# DRONE_DISTANCE * forward_dir
+    #print("target Pos: ", target_pos,", HandPos: ", position)
+    
+
+def vicon_callback(msg):
+    """
+    Callback function for the Vicon topic.
+    It calculates and sends the target position via UDP.
+    """
+    position = np.array([msg.transform.translation.x, msg.transform.translation.y, msg.transform.translation.z])
+    orientation = msg.transform.rotation
+
+    calculate_target_position(position, orientation)
+
+    # Convert position data to bytes
+    message = ','.join(map(str, position)).encode()
+
+    # Send the message via UDP
+    sock.sendto(message, (DEST_IP, DEST_PORT))
+
+def main():
+    # Initialize the ROS node
+    rospy.init_node('vicon_udp_sender', anonymous=True)
+
+    # Subscribe to the Vicon topic
+    rospy.Subscriber('/vicon/Hand/Hand', TransformStamped, vicon_callback)
+
+    rospy.spin()
+
+if __name__ == "__main__":
+    main()

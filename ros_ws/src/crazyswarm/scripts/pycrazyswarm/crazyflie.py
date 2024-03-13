@@ -578,7 +578,7 @@ class CrazyflieServer:
         # self.stopService = rospy.ServiceProxy("/stop", Stop)
         rospy.wait_for_service("/go_to")
         self.goToService = rospy.ServiceProxy("/go_to", GoTo)
-        rospy.wait_for_service("/start_trajectory");
+        rospy.wait_for_service("/start_trajectory")
         self.startTrajectoryService = rospy.ServiceProxy("/start_trajectory", StartTrajectory)
         rospy.wait_for_service("/update_params")
         self.updateParamsService = rospy.ServiceProxy("/update_params", UpdateParams)

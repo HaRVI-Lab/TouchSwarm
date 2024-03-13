@@ -865,6 +865,7 @@ public:
 
     if (m_useMotionCaptureObjectTracking) {
       for (auto cf : m_cfs) {
+        // ROS_WARN("in motion capturing line 868 with %s", cf->frame().c_str());
         bool found = publishRigidBody(cf->frame(), cf->id(), states);
         if (found) {
           cf->initializePositionIfNeeded(states.back().x, states.back().y, states.back().z);

@@ -18,19 +18,24 @@ Z = 0
 print(cfl.position())
 print(cfr.position())
 
-totalTime = 15.0
+takeOffTime = 5.0
+totalTime=5.0
+startTime = timeHelper.time()
 
+#while timeHelper.time() - startTime < totalTime:
 
 # takeoff
-while cfl.position()[2] < 0.80:
+while cfl.position()[2] < 0.5 and (timeHelper.time() - startTime < takeOffTime):
+    print(cfl.position())
+    print("Z"+str(Z))
     for cf in allcfs.crazyflies:
         temp = np.array(cf.initialPosition)
         temp[2] = 0.0
         pos = temp + np.array([0, 0, Z])
         cf.cmdPosition(pos)
-    timeHelper.sleep(0.02)
-    if Z < 1.0:
-        Z += 0.01
+    timeHelper.sleepForRate(5)
+    if Z < 0.80:
+        Z += 0.03
     
 #go to a mid point
 
@@ -39,23 +44,25 @@ current_setpoint_l =    cfl.position()  # Replace with the actual current setpoi
 current_setpoint_r =    cfr.position()  # Replace with the actual current setpoint
 print(cfl.position())
 print(cfr.position())
-posl = np.array([0, -0.58, Z])
-posr = np.array([0, -0.61, Z])
+posl = np.array([0, 0, Z])
+posr = np.array([0.0, -0.05, Z])
 
 # Number of steps for interpolation
-steps = 500  # Adjust this as needed
-
+steps = 200  # Adjust this as needed
+print("Going to setpoints right now")
 # Interpolate setpoints
 setpoints_l = interpolate(current_setpoint_l, posl, steps)
 setpoints_r = interpolate(current_setpoint_r, posr, steps)
 
 for setpoint_l, setpoint_r in zip(setpoints_l, setpoints_r):
-    # print(setpoint_l)
-    # print(setpoint_r)
-    # print("\n")
+    print(setpoint_l)
+    print(setpoint_r)
+    print(cfl.position())
+    print(cfr.position())
+    print("\n")
     cfl.cmdPosition(setpoint_l)
     cfr.cmdPosition(setpoint_r)
-    timeHelper.sleepForRate(80) 
+    timeHelper.sleepForRate(20) 
 
 startTime = timeHelper.time()
 print("hovering")
