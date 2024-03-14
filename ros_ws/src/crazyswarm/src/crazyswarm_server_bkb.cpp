@@ -788,82 +788,6 @@ private:
 // Need to provide a return methods to get the states
 
 
-class MocapReceiver {
-public:
-    MocapReceiver(int port) : udpPort(port), shouldRun(false) {}
-    ~MocapReceiver() {
-        stop();
-    }
-
-    void start() {
-        shouldRun = true;
-        udpThread = std::thread(&MocapReceiver::receiveData, this);
-    }
-
-    void stop() {
-        shouldRun = false;
-        if (udpThread.joinable()) udpThread.join();
-        if (sockfd != -1) close(sockfd);
-    }
-
-    std::vector<float> getState() {
-        std::lock_guard<std::mutex> lock(stateMutex);
-        return state;
-    }
-
-private:
-    int udpPort;
-    int sockfd = -1;
-    std::thread udpThread;
-    volatile bool shouldRun;
-    std::mutex stateMutex;
-    std::vector<float> state; // x, y, z, qx, qy, qz, qw
-
-    void receiveData() {
-        sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-        if (sockfd < 0) {
-            std::cerr << "Error opening socket" << std::endl;
-            return;
-        }
-
-        struct sockaddr_in serverAddr;
-        memset(&serverAddr, 0, sizeof(serverAddr));
-        serverAddr.sin_family = AF_INET;
-        serverAddr.sin_addr.s_addr = inet_addr("192.168.1.220"); // Specific IP
-        serverAddr.sin_port = htons(8080); // Specific port
-
-        if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
-            std::cerr << "Error binding socket" << std::endl;
-            return;
-        }
-        char buffer[1024];
-        while (shouldRun) {
-            struct sockaddr_in clientAddr;
-            socklen_t len = sizeof(clientAddr);
-            int n = recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr *)&clientAddr, &len);
-            if (n > 0) {
-                buffer[n] = '\0';
-                parseData(std::string(buffer));
-            }
-        }
-    }
-
-    void parseData(const std::string& data) {
-        // Example parsing, assuming data format "x,y,z,qx,qy,qz,qw"
-        std::stringstream ss(data);
-        std::vector<float> newState(7, 0.0f); // Initialize with 7 zeros
-        char comma;
-        
-        ss >> newState[0] >> comma >> newState[1] >> comma >> newState[2] >> comma
-           >> newState[3] >> comma >> newState[4] >> comma >> newState[5] >> comma >> newState[6];
-        
-        {
-            std::lock_guard<std::mutex> lock(stateMutex);
-            state = newState;
-        }
-    }
-};
-
 
 
 // handles a group of Crazyflies, which share a radio
@@ -903,8 +827,11 @@ public:
     , m_sendPositionOnly(sendPositionOnly)
     , m_outputCSVs()
     , m_phase(0)
+    , udpPort(8080) 
+    , shouldRun(false)
     , m_phaseStart()
   {
+    
     std::vector<libobjecttracker::Object> objects;
     readObjects(objects, channel, logBlocks);
     m_tracker = new libobjecttracker::ObjectTracker(
@@ -946,7 +873,7 @@ public:
     auto stamp = std::chrono::high_resolution_clock::now();
 
     std::vector<CrazyflieBroadcaster::externalPose> states;
-
+    // std::vector<float> st = CrazyflieGroup::getState();
     if (!m_interactiveObject.empty()) {
       runInteractiveObject(states);
     }
@@ -957,10 +884,11 @@ public:
         //ToDo Implement 
         //a UDP socket that listen to tf from visionOs. parse that and replace states
 
-        bool found = publishRigidBody(cf->frame(), cf->id(), states);
-        if (found) {
-          cf->initializePositionIfNeeded(states.back().x, states.back().y, states.back().z);
-        }
+        // bool found = publishRigidBody(cf->frame(), cf->id(), states);
+        // if (found) {
+        //   cf->initializePositionIfNeeded(states.back().x, states.back().y, states.back().z);
+        // }
+        ROS_WARN("st:%f" ,states[0] );
       }
     } else {
       // run object tracker
@@ -1017,27 +945,27 @@ public:
         }
       }
     }
-
-    {
-      auto start = std::chrono::high_resolution_clock::now();
-      if (!m_sendPositionOnly) {
-        m_cfbc.sendExternalPoses(states);
-      } else {
-        std::vector<CrazyflieBroadcaster::externalPosition> positions(states.size());
-        for (size_t i = 0; i < positions.size(); ++i) {
-          positions[i].id = states[i].id;
-          positions[i].x  = states[i].x;
-          positions[i].y  = states[i].y;
-          positions[i].z  = states[i].z;
-        }
-        m_cfbc.sendExternalPositions(positions);
-      }
-      auto end = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double> elapsedSeconds = end-start;
-      m_latency.broadcasting = elapsedSeconds.count();
-      // totalLatency += elapsedSeconds.count();
-      // ROS_INFO("Broadcasting: %f s", elapsedSeconds.count());
-    }
+//todo need to fix this
+    // {
+    //   auto start = std::chrono::high_resolution_clock::now();
+    //   if (!m_sendPositionOnly) {
+    //     m_cfbc.sendExternalPoses(states);
+    //   } else {
+    //     std::vector<CrazyflieBroadcaster::externalPosition> positions(states.size());
+    //     for (size_t i = 0; i < positions.size(); ++i) {
+    //       positions[i].id = states[i].id;
+    //       positions[i].x  = states[i].x;
+    //       positions[i].y  = states[i].y;
+    //       positions[i].z  = states[i].z;
+    //     }
+    //     m_cfbc.sendExternalPositions(positions);
+    //   }
+    //   auto end = std::chrono::high_resolution_clock::now();
+    //   std::chrono::duration<double> elapsedSeconds = end-start;
+    //   m_latency.broadcasting = elapsedSeconds.count();
+    //   // totalLatency += elapsedSeconds.count();
+    //   // ROS_INFO("Broadcasting: %f s", elapsedSeconds.count());
+    // }
 
     // auto time = std::chrono::duration_cast<std::chrono::microseconds>(
     //   std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -1106,7 +1034,10 @@ public:
     // }
   }
 
-
+  std::vector<float> getState() {
+        std::lock_guard<std::mutex> lock(stateMutex);
+        return state;
+    }
 
   template<class T, class U>
   void updateParam(const char* group, const char* name, const std::string& ros_param) {
@@ -1167,7 +1098,7 @@ private:
     const auto& iter = m_pMocapRigidBodies->find(name);
     if (iter != m_pMocapRigidBodies->end()) {
       const auto& rigidBody = iter->second;
-      ROS_WARN("found name and trying to update");
+
       states.resize(states.size() + 1);
       states.back().id = id;
       states.back().x = rigidBody.position().x();
@@ -1279,7 +1210,57 @@ private:
       std::chrono::duration<double> elapsed = end - start;
       ROS_INFO("Update params: %f s", elapsed.count());
     }
+    shouldRun = true;
+    udpThread = std::thread(&CrazyflieGroup::receiveData, this);
   }
+  void receiveData() {
+        sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+        if (sockfd < 0) {
+            std::cerr << "Error opening socket1" << std::endl;
+            return;
+        }
+        std::cout << "receiving" <<std::endl;
+        struct sockaddr_in serverAddr;
+        memset(&serverAddr, 0, sizeof(serverAddr));
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Specific IP
+        serverAddr.sin_port = htons(8080); // Specific port
+        std::cout << "Error opening socket1" << std::endl;
+        if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+            std::cerr << "Error binding socket2" << std::endl;
+            return;
+        }
+
+
+        char buffer[1024];
+        while (shouldRun) {
+            struct sockaddr_in clientAddr;
+            socklen_t len = sizeof(clientAddr);
+            int n = recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr *)&clientAddr, &len);
+            std::cout << "receiving socket1" << std::string(buffer)<<std::endl;
+            if (n > 0) {
+                buffer[n] = '\0';
+                parseData(std::string(buffer));
+            }
+        }
+
+    // Continue with the existing implementation...
+  }
+  void parseData(const std::string& data) {
+        // Example parsing, assuming data format "x,y,z,qx,qy,qz,qw"
+        std::stringstream ss(data);
+        std::vector<float> newState(7, 0.0f); // Initialize with 7 zeros
+        char comma;
+        
+        ss >> newState[0] >> comma >> newState[1] >> comma >> newState[2] >> comma
+           >> newState[3] >> comma >> newState[4] >> comma >> newState[5] >> comma >> newState[6];
+        
+        {
+            std::lock_guard<std::mutex> lock(stateMutex);
+            state = newState;
+        }
+    }
+
 
   void addCrazyflie(
     const std::string& uri,
@@ -1310,7 +1291,9 @@ private:
     ROS_INFO("CF run: %f s", elapsed2.count());
     m_cfs.push_back(cf);
   }
-
+  void justCheck(){
+    int x = 3;
+  }
   void updateParams(
     CrazyflieROS* cf)
   {
@@ -1385,11 +1368,19 @@ private:
   }
 
 private:
+  int udpPort;
+  int sockfd = -1;
+  std::thread udpThread;
+  volatile bool shouldRun;
+  std::mutex stateMutex;
+  std::vector<float> state;
+  //udp var
   std::vector<CrazyflieROS*> m_cfs;
   std::string m_interactiveObject;
   libobjecttracker::ObjectTracker* m_tracker; // non-owning pointer
   int m_radio;
   pcl::PointCloud<pcl::PointXYZ>::Ptr m_pMarkers;
+  
   std::map<std::string, libmotioncapture::RigidBody>* m_pMocapRigidBodies; // non-owning pointer
   ros::CallbackQueue m_slowQueue;
   CrazyflieBroadcaster m_cfbc;

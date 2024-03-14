@@ -3,8 +3,8 @@ import time
 import numpy as np
 
 # Constants
-DEST_IP = "127.0.0.1"
-DEST_PORT = 8008
+DEST_IP = "192.168.1.220"
+DEST_PORT = 8080
 FREQUENCY = 30
 INTERVAL = 1.0 / FREQUENCY
 
@@ -29,7 +29,8 @@ def send_position_data():
         position_data = generate_linear_movement(current_time)
 
         # Convert position data to bytes
-        message = ','.join(map(str, position_data)).encode()
+        # message = ','.join(map(str, position_data)).encode()
+        message = "0,0,0,1,1,1".encode()
         print(message)
         # Send the message
         sock.sendto(message, (DEST_IP, DEST_PORT))
