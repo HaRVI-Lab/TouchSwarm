@@ -11,12 +11,10 @@ import os
 import tf
 import math
 import time
-from avp_stream import VisionProStreamer
-avp_ip = "192.168.1.154"   # example IP 
-s = VisionProStreamer(ip = avp_ip, record = True)
+
 #Sockets
-IP = "127.0.0.1"
-PORT = 8008
+IP = "192.168.1.220"
+PORT = 8080
 BUFFER_SIZE = 1024  # Adjust as needed
 DRONE_DISTANCE = 0.15  # 15 cm
 TAKEOFF_DURATION = 2.5
@@ -25,17 +23,17 @@ totalTime = 60.0
 
 #Drone Config
 z = 0.75
-goal_position = np.array([0, 0, z])
+goal_position = np.array([0, 0, 0])
 radius = 0.15
 now = datetime.datetime.now()
 goal = np.array([0,0,z])
 takeoff=False
 land = False
-takeoff_height = 0.8
+takeoff_height = 0.75
 hand_Pos = [0,0,0]
 hand_Ori = [0,0,0]
 numClicked = 0
-cmd_ori = [0,0,1.0]
+cmd_ori = np.array([0,0,0.75])
 
 #Logging
 statefile_name = now.strftime("%Y_%m_%d-%H_%M_%S_state.log")
@@ -69,20 +67,20 @@ def udp_listener():
     while True:
         data, addr = sock.recvfrom(BUFFER_SIZE)
         try:
-            goal_position = np.fromstring(data.decode(), sep=',')
+            message = data.decode()
+            x_str, y_str, z_str = message.split(',')
+            x = -3*(float(x_str) )
+            z = 3*(float(z_str)-0.3)
+            y = float(y_str)-1.71
+            goal_position = np.array([z,x,y])
+            # print(f"x:{x}, y:{y}, z:{z}")
+            
             #print("goal:",goal_position)
         except ValueError:
             print("error")
             pass 
-def visionPro_Listener():
-    global goal_position
-
-    while True:
-        r = s.latest
-        goal_position = r['right_fingers'][0, :, -1]
-        print(goal_position)
-        print(r['right_fingers'])
-        #time.sleep(0.01)
+        
+        
 
 def update_position(cf,timeHelper):
     global numClicked, goal_position, hand_Pos, hand_Ori,takeoff, land
@@ -171,42 +169,45 @@ def main():
     # udp_thread.daemon = True
     # udp_thread.start()
     # print("listening")
-    vp_thread = threading.Thread(target=visionPro_Listener)
-    vp_thread.daemon = True
-    vp_thread.start()
-    print("vision pro listening.")
-    time.sleep(10)
+    # vp_thread = threading.Thread(target=udp_listener)
+    # vp_thread.daemon = True
+    # vp_thread.start()
+    # print("vision pro listening.")
+    # time.sleep(10)
+    quest_thread = threading.Thread(target=udp_listener)
+    quest_thread.daemon = True
+    quest_thread.start()
+    print("quest listening.")
+    i=0
+    # while(i<10000000):
+    #     print(goal_position)
     
-    rospy.Subscriber('/vicon/Hand/Hand', TransformStamped, calculate_target_position)
+    # # # rospy.Subscriber('/vicon/Hand/Hand', TransformStamped, calculate_target_position)
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
     timeHelper.sleep(5)
     cf = swarm.allcfs.crazyflies[0]
     cfs = swarm.allcfs
-    # # Subscribe to the /cf1/log1 topic
-    # rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
+    # Subscribe to the /cf1/log1 topic
+    rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
     
+    print("Taking off")
     # # Takeoff
-    # cfs.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
-    # timeHelper.sleep(TAKEOFF_DURATION)
-    # print("finished tookoff and starting UDP")
+    cf.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
+    timeHelper.sleep(TAKEOFF_DURATION)
+    print("finished tookoff and starting UDP")
     
+    start = timeHelper.time()
+    while(timeHelper.time()-start  < 30):
+        goal = cmd_ori+goal_position
+        print("cmd:"+str(goal[0]) +","+str(goal[1])+","+str(goal[2]))
+        cf.cmdPosition(cmd_ori+ goal_position )
+        timeHelper.sleepForRate(30)
+    #25 seconds max, then land
     
-    # # # start streaming Pos thru UDP
-    # # position_thread = threading.Thread(target=update_position, args=(cf,timeHelper))
-    # # position_thread.daemon = True
-    # # position_thread.start()
-    # # print("UDP started")
-    # # while( not takeoff or not land):
-    # #     rospy.sleep(0.1)
-    # startTime = timeHelper.time()
-    # while(timeHelper.time()- startTime < 30):
-    #     cf.cmdPosition(cmd_ori)
-    # print("click so far: " + str(numClicked))
-    # #25 seconds max, then land
-    # cfs.land(targetHeight=0.04, duration=3.5)
-    # timeHelper.sleep(TAKEOFF_DURATION)
-    # print("land")  
+    cf.land(targetHeight=0.04, duration=3.5)
+    timeHelper.sleep(TAKEOFF_DURATION)
+    print("land")  
 
 if __name__ == "__main__":
     main()

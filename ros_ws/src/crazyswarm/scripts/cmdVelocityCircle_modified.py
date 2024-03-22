@@ -5,7 +5,6 @@ import numpy as np
 from pycrazyswarm import *
 import logging
 import time
-#!/usr/bin/env python
 import rospy
 from crazyswarm.msg import GenericLogData
 import datetime

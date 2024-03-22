@@ -5,7 +5,7 @@ import numpy as np
 
 TAKEOFF_DURATION = 2.5
 HOVER_DURATION = 15.0
-totalTime = 50.0
+totalTime = 10.0
 import rospy
 from crazyswarm.msg import GenericLogData
 import datetime
@@ -34,11 +34,11 @@ def main():
     timeHelper = swarm.timeHelper
     allcfs = swarm.allcfs
     cf = swarm.allcfs.crazyflies[0]
-    #cf2 = swarm.allcfs.crazyflies[1]
+    cf2 = swarm.allcfs.crazyflies[1]
     
     # Subscribe to the /cf1/log1 topic
     rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
-    #rospy.Subscriber("/cf2/log1", GenericLogData, log_callback)
+    rospy.Subscriber("/cf2/log1", GenericLogData, log_callback)
     
     
     print(cf.getParam("pid_attitude/roll_kp"))
@@ -47,12 +47,12 @@ def main():
     print(cf.getParam("pid_attitude/pitch_kp"))
     print(cf.getParam("pid_attitude/pitch_ki"))
     print(cf.getParam("pid_attitude/pitch_kd"))
-    # print(cf2.getParam("pid_attitude/roll_kp"))
-    # print(cf2.getParam("pid_attitude/roll_ki"))
-    # print(cf2.getParam("pid_attitude/roll_kd"))
-    # print(cf2.getParam("pid_attitude/pitch_kp"))
-    # print(cf2.getParam("pid_attitude/pitch_ki"))
-    # print(cf2.getParam("pid_attitude/pitch_kd"))
+    print(cf2.getParam("pid_attitude/roll_kp"))
+    print(cf2.getParam("pid_attitude/roll_ki"))
+    print(cf2.getParam("pid_attitude/roll_kd"))
+    print(cf2.getParam("pid_attitude/pitch_kp"))
+    print(cf2.getParam("pid_attitude/pitch_ki"))
+    print(cf2.getParam("pid_attitude/pitch_kd"))
     
     
     allcfs.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
@@ -62,9 +62,9 @@ def main():
     startTime = timeHelper.time()
     print("starting")
     goal = cf.position()
-    #goal2 = cf2.position()
+    goal2 = cf2.position()
     goal[2] = z
-    #goal2[2] = z
+    goal2[2] = z
     lastPos = cf.position()
     lastUpdate = timeHelper.time()
     stabilized = False
@@ -85,22 +85,22 @@ def main():
             
             file2.write(str(timeHelper.time())+","+str(cf.position()[0])+ ","+str(cf.position()[1])+","+ str(cf.position()[2])+","+ str(distance)+'\n')
             print("cf1: "+str(timeHelper.time())+","+str(cf.position()[0])+ ","+str(cf.position()[1])+","+ str(cf.position()[2])+","+ str(distance)+'\n')
-            # print("cf2: "+str(timeHelper.time())+","+str(cf2.position()[0])+ ","+str(cf2.position()[1])+","+ str(cf2.position()[2])+","+ str(distance)+'\n')
+            print("cf2: "+str(timeHelper.time())+","+str(cf2.position()[0])+ ","+str(cf2.position()[1])+","+ str(cf2.position()[2])+","+ str(distance)+'\n')
             
             
             if distance > radius and stabilized:
                 
                 goal = cf.position() 
-                #goal2 = cf2.position()
+                goal2 = cf2.position()
                 goal[2] = z
-                #goal2[2] = z 
+                goal2[2] = z 
                 
           
 
             #file.write(str(goal[0])+ ","+str(goal[1])+","+ str(goal[2])+'\n')
             
             # allcfs.goTo(goal, yaw =  0)
-            cf.cmdPosition(goal, yaw =  0)
+            # cf.cmdPosition(goal, yaw =  0)
             # cf2.cmdPosition(goal2, yaw =  0)
             #cf.cmdVelocityWorld(np.array([0, 0, 0]) , yawRate=0)#+ kPosition * error,
 

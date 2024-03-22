@@ -80,8 +80,7 @@ def visionPro_Listener():
     while True:
         r = s.latest
         goal_position = r['right_fingers'][0, :, -1]
-        print(goal_position)
-        print(r['right_fingers'])
+        print( r['right_fingers'])
         #time.sleep(0.01)
 
 def update_position(cf,timeHelper):
@@ -183,30 +182,30 @@ def main():
     timeHelper.sleep(5)
     cf = swarm.allcfs.crazyflies[0]
     cfs = swarm.allcfs
-    # # Subscribe to the /cf1/log1 topic
-    # rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
+    # Subscribe to the /cf1/log1 topic
+    rospy.Subscriber("/cf1/log1", GenericLogData, log_callback)
     
-    # # Takeoff
-    # cfs.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
-    # timeHelper.sleep(TAKEOFF_DURATION)
-    # print("finished tookoff and starting UDP")
+    # Takeoff
+    cfs.takeoff(targetHeight=z, duration=TAKEOFF_DURATION)
+    timeHelper.sleep(TAKEOFF_DURATION)
+    print("finished tookoff and starting UDP")
     
     
-    # # # start streaming Pos thru UDP
-    # # position_thread = threading.Thread(target=update_position, args=(cf,timeHelper))
-    # # position_thread.daemon = True
-    # # position_thread.start()
-    # # print("UDP started")
-    # # while( not takeoff or not land):
-    # #     rospy.sleep(0.1)
-    # startTime = timeHelper.time()
-    # while(timeHelper.time()- startTime < 30):
-    #     cf.cmdPosition(cmd_ori)
-    # print("click so far: " + str(numClicked))
-    # #25 seconds max, then land
-    # cfs.land(targetHeight=0.04, duration=3.5)
-    # timeHelper.sleep(TAKEOFF_DURATION)
-    # print("land")  
+    # # start streaming Pos thru UDP
+    # position_thread = threading.Thread(target=update_position, args=(cf,timeHelper))
+    # position_thread.daemon = True
+    # position_thread.start()
+    # print("UDP started")
+    # while( not takeoff or not land):
+    #     rospy.sleep(0.1)
+    startTime = timeHelper.time()
+    while(timeHelper.time()- startTime < 30):
+        cf.cmdPosition(cmd_ori)
+    print("click so far: " + str(numClicked))
+    #25 seconds max, then land
+    cfs.land(targetHeight=0.04, duration=3.5)
+    timeHelper.sleep(TAKEOFF_DURATION)
+    print("land")  
 
 if __name__ == "__main__":
     main()

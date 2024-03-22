@@ -58,7 +58,7 @@
 #include <future>
 #include <mutex>
 #include <wordexp.h> // tilde expansion
-
+#define MODQUAD true
 /*
 Threading
  * There are 2N+1 threads, where N is the number of groups (== number of unique channels)
@@ -956,9 +956,16 @@ public:
         // ROS_WARN("in motion capturing line 868 with %s", cf->frame().c_str());
         //ToDo Implement 
         //a UDP socket that listen to tf from visionOs. parse that and replace states
-
-        bool found = publishRigidBody(cf->frame(), cf->id(), states);
+        bool found = false;
+        if(MODQUAD){
+           found = publishRigidBody("cf2", cf->id(), states);
+        }
+        else{
+           found = publishRigidBody(cf->frame(), cf->id(), states);
+        }
         if (found) {
+          // ROS_WARN("962 with %s, %f", cf->frame().c_str(),cf->id());
+          // ROS_WARN("962 with %s, %d", "cf2",cf->id());
           cf->initializePositionIfNeeded(states.back().x, states.back().y, states.back().z);
         }
       }
@@ -1164,10 +1171,12 @@ private:
   bool publishRigidBody(const std::string& name, uint8_t id, std::vector<CrazyflieBroadcaster::externalPose> &states)
   {
     assert(m_pMocapRigidBodies);
+    
     const auto& iter = m_pMocapRigidBodies->find(name);
     if (iter != m_pMocapRigidBodies->end()) {
       const auto& rigidBody = iter->second;
-      ROS_WARN("found name and trying to update");
+      // ROS_WARN("found name and trying to update");
+      
       states.resize(states.size() + 1);
       states.back().id = id;
       states.back().x = rigidBody.position().x();
@@ -1179,17 +1188,60 @@ private:
       states.back().qw = rigidBody.rotation().w();
 
       tf::Transform transform;
-      transform.setOrigin(tf::Vector3(
-        states.back().x,
-        states.back().y,
-        states.back().z));
+      std::string nameNew = "";
       tf::Quaternion q(
         states.back().qx,
         states.back().qy,
         states.back().qz,
         states.back().qw);
+
+      double theta = atan2(2.0 * (states.back().qw * states.back().qz + states.back().qx * states.back().qy), 
+                     1.0 - 2.0 * (states.back().qy * states.back().qy + states.back().qz * states.back().qz));
+
+      // Offset to the right, adjust offsetX to your specific case
+      double offsetX = 0.0; // 1 unit to the right, adjust as needed
+      double offsetY = 0.0; // No vertical offset
+
+      
       transform.setRotation(q);
-      m_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", name));
+      if ( MODQUAD){
+        if(id == 1 ){
+          offsetX = 0;
+          offsetY = 0;
+          nameNew= "cf1";
+        }
+        else if(id == 2 ){
+          offsetX = 0;
+          offsetY = -0.12;
+          nameNew= "cf2";
+        }
+        else if(id == 3 ){
+          offsetX = -0.12;
+          offsetY = -0.12;
+          nameNew= "cf3";
+        }
+        else if(id == 4 ){
+          offsetX = -0.12;
+          offsetY = 0;
+          nameNew= "cf4";
+        }
+      }
+      double rotatedOffsetX = offsetX * cos(theta) - offsetY * sin(theta);
+      double rotatedOffsetY = offsetX * sin(theta) + offsetY * cos(theta);
+      
+      transform.setOrigin(tf::Vector3(
+        states.back().x + rotatedOffsetX,
+        states.back().y + rotatedOffsetY,
+        states.back().z));
+      // if(id == 1){
+      //   nameNew= "cf1";
+      // }
+      // else{
+      //   nameNew= "cf2";
+      // }
+      
+      // std::cout<<"1207:"<<nameNew<<", and :"<<id<<std::endl;
+      m_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", nameNew));
       return true;
     } else {
       ROS_WARN("No updated pose for motion capture object %s", name.c_str());

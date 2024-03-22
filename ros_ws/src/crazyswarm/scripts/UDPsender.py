@@ -30,7 +30,7 @@ def send_position_data():
 
         # Convert position data to bytes
         # message = ','.join(map(str, position_data)).encode()
-        message = "0,0,0,1,1,1".encode()
+        message = "0,0,0,0,0,0".encode()
         print(message)
         # Send the message
         sock.sendto(message, (DEST_IP, DEST_PORT))
