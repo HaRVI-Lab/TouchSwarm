@@ -59,6 +59,9 @@
 #include <mutex>
 #include <wordexp.h> // tilde expansion
 #define MODQUAD true
+
+#include <std_msgs/Bool.h>
+
 /*
 Threading
  * There are 2N+1 threads, where N is the number of groups (== number of unique channels)
@@ -172,7 +175,8 @@ public:
     m_subscribeCmdStop = n.subscribe(m_tf_prefix + "/cmd_stop", 1, &CrazyflieROS::cmdStop, this);
 
     // New Velocity command type (Hover)
-    m_subscribeCmdHover=n.subscribe(m_tf_prefix+"/cmd_hover",1,&CrazyflieROS::cmdHoverSetpoint, this);
+    m_subscribeCmdHover= n.subscribe(m_tf_prefix+"/cmd_hover",1,&CrazyflieROS::cmdHoverSetpoint, this);
+     
 
     if (m_enableLogging) {
       m_logFile.open("logcf" + std::to_string(id) + ".csv");
@@ -189,6 +193,8 @@ public:
         m_pubPose = n.advertise<geometry_msgs::PoseStamped>(m_tf_prefix + "/pose", 10);
       }
     }
+
+    m_subscribeSwitchTracking = n.subscribe(tf_prefix + "/switch_tracking", 1, &CrazyflieROS::switchTrackingCallback, this);
 
     // m_subscribeJoy = n.subscribe("/joy", 1, &CrazyflieROS::joyChanged, this);
   }
@@ -486,6 +492,16 @@ public:
       //ROS_INFO("set a hover setpoint");
 
   }
+
+//added switch tracking callback function
+ void switchTrackingCallback(const std_msgs::Bool::ConstPtr& msg)
+{
+    m_switchTracking = msg->data;
+    ROS_INFO("Received message from python code: %d", m_switchTracking);
+    m_useMotionCaptureObjectTracking = m_switchTracking;
+    
+}
+
   void cmdVelocityWorldSetpoint(
     const crazyswarm::VelocityWorld::ConstPtr& msg)
   {
@@ -781,6 +797,10 @@ private:
   bool m_forceNoCache;
   bool m_initializedPosition;
   std::string m_messageBuffer;
+
+  ros::Subscriber m_subscribeSwitchTracking;
+  bool m_switchTracking;
+
 };
 
 //toDo implement a udp class that maintains a state. have a server that listens for update from another source and 
@@ -951,6 +971,7 @@ public:
       runInteractiveObject(states);
     }
 
+    //TODO if the publisher and subscriber work, we can change the flag variable to m_switchTracking 
     if (m_useMotionCaptureObjectTracking) {
       for (auto cf : m_cfs) {
         // ROS_WARN("in motion capturing line 868 with %s", cf->frame().c_str());
