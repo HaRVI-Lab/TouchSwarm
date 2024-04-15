@@ -14,6 +14,8 @@ import os
 import tf
 import math
 import time
+from std_msgs.msg import Bool
+
 Z = 0.50
 totalTime = 60.0
 DRONE_DISTANCE = 0.15  # 15 cm
@@ -72,6 +74,11 @@ def update_position(cf,timeHelper):
                 if timeHelper.time() - lastClick > 2:
                     print("turning off motor")
                     cf.setParam("powerDist/thrustOff",1)
+
+                    #Added publish functions to send switch tracking type messages to crazyswarm_server.cpp 
+                    switch_tracking_msg = Bool()
+                    switch_tracking_msg.data = True
+                    switch_tracking_pub.publish(switch_tracking_msg)
                 if not held:
                     print("starting to held")
                     lastClick = timeHelper.time()
@@ -129,6 +136,8 @@ if __name__ == "__main__":
     allcfs = swarm.allcfs
     cf = swarm.allcfs.crazyflies[0]
     rospy.Subscriber('/vicon/hand/hand', TransformStamped, calculate_target_position)
+    switch_tracking_pub = rospy.Publisher('/switch_tracking', Bool, queue_size=1)
+    
     # update_position(cf, timeHelper)
     print("param:"+str(cf.getParam("powerDist/thrustOff")))
     
